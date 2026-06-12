@@ -5,9 +5,7 @@ from typing import List
 from sqlalchemy import text
 from app.database.connection import get_db
 
-
-# Tipos de datos para GraphQL
-
+# Tipos de datos para GraphQL 
 @strawberry.type
 class StockGraphQLType:
     IDStock: int
@@ -33,10 +31,12 @@ class MovimientoResponse:
     success: bool
     message: str
 
+@strawberry.type
+class CostoResponse:
+    success: bool
+    message: str
 
-
-# Logica de consulta y mutación
-
+# Logica de consultas 
 
 @strawberry.type
 class Query:
@@ -66,6 +66,8 @@ class Query:
         return [ValorInventarioType(**row._mapping) for row in result]
 
 
+# Alteraciones para mutaciones
+
 @strawberry.type
 class Mutation:
     @strawberry.mutation
@@ -82,8 +84,25 @@ class Mutation:
             db.rollback()
             return MovimientoResponse(success=False, message=f"Error interno: {str(e)}")
 
+    @strawberry.mutation
+    def actualizarCostoProducto(self, id_producto: int, nuevo_costo: float) -> CostoResponse:
+        if nuevo_costo < 0:
+            return CostoResponse(success=False, message="El costo no puede ser menor a 0")
+        
+        db = next(get_db())
+        try:
+            verificar = db.execute(text("SELECT ID_producto FROM productos WHERE ID_producto = :id"), {"id": id_producto}).fetchone()
+            if not verificar:
+                return CostoResponse(success=False, message=f"El producto con ID {id_producto} no existe en la base de datos")
+            
+            sql = text("UPDATE productos SET costo_unitario = :costo WHERE ID_producto = :id")
+            db.execute(sql, {"costo": nuevo_costo, "id": id_producto})
+            db.commit()
+            return CostoResponse(success=True, message=f"Costo del producto {id_producto} actualizado exitosamente a Q{nuevo_costo:.2f}")
+        except Exception as e:
+            db.rollback()
+            return CostoResponse(success=False, message=f"Error al actualizar en MySQL: {str(e)}")
 
-# 3. Inicialización del router de GraphQL
-
+# Configuración del router de GraphQL
 schema = strawberry.Schema(query=Query, mutation=Mutation)
 router = GraphQLRouter(schema)

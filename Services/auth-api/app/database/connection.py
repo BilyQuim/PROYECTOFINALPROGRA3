@@ -4,8 +4,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 DATABASE_URL = os.getenv(
-    "DB_URL", 
-    "mysql+pymysql://cereria_user:Progra3UPANA*@host.docker.internal:3306/cereria_db"
+    "DATABASE_URL", 
+    "mysql+pymysql://root:123456@db:3306/cereria_db"
 )
 
 engine = create_engine(DATABASE_URL)
