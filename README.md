@@ -69,3 +69,63 @@ Diseñado para romper con el esquema rígido de REST, este microservicio procesa
 
 🔍 Queries (Consultas de Lectura de Datos)
 A. verExistencias
+query {
+    verExistencias {
+        IDStock
+        IDSucursal
+        IDProducto
+        stockActual
+    }
+}
+B. alertasStockBajo
+query {
+    alertasStockBajo {
+        nombre_sucursal
+        nombre_producto
+        categoria
+        stock_actual
+    }
+}
+C. valorInventarioPorSucursal
+query {
+    valorInventarioPorSucursal {
+        nombre_sucursal
+        total_unidades
+        valor_monetario_total
+    }
+}
+A. crearProducto
+mutation {
+    crear_producto(nombre: "Vela Mágica Vainilla", categoria: "Aromáticas", costo: 18.50) {
+        success
+        message
+    }
+}
+B. actualizarCostoProducto
+mutation {
+    actualizarCostoProducto(idProducto: 1, nuevoCosto: 14.70) {
+        success
+        message
+    }
+}
+C. registrarMovimientoKardex
+mutation {
+    registrarMovimientoKardex(
+        idProducto: 1,
+        idSucursal: 1,
+        idUsuario: 2,
+        tipoMovimiento: "ENTRADA",
+        cantidad: 10
+    ) {
+        success
+        message
+    }
+}
+👥 6. Usuarios y Credenciales de Prueba
+Para interactuar de forma inmediata con las capas protegidas del sistema (escribir en REST o mutar en GraphQL), se ha inyectado un set de datos inicial (Seeding) en el contenedor de MySQL con el siguiente usuario operativo:
+
+Nombre de Usuario (Login): carlos_encargado1
+
+Contraseña Base: 123456
+
+Rol del Sistema: Encargado de Inventario / Auditor de Sucursal
