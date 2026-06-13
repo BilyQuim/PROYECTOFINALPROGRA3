@@ -1,64 +1,122 @@
-version: '3.8'
-
 services:
-  db-service:
+
+  # 1. BASE DE DATOS 
+
+  db:
     image: mysql:8.0
-    container_name: cereria_mysql
+    container_name: cereria-mysql
     restart: always
     environment:
-      # CORRECCIÓN DE ORO: Le indicamos explícitamente a MySQL que acepte contraseña vacía
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-      MYSQL_DATABASE: cereria_db
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: "cereria_db"
     ports:
-      - "3307:3306"
+      - "3308:3306" 
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - cereria-network
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: cereria_phpmyadmin
-    restart: always
-    ports:
-      - "8085:80"  # <-- CAMBIAMOS EL PUERTO A 8085 PARA EVITAR EL CHOQUE
-    environment:
-      - PMA_HOST=db-service
-      - PMA_USER=root
-      - PMA_PASSWORD=
-    depends_on:
-      - db-service
+
+  # 2. MICROSERVICIO DE AUTENTICACIÓN 
 
   auth-service:
     build:
-      context: ./services/auth-api
-      dockerfile: Dockerfile
-    ports:
-      - "8001:8000"
+      context: ./Services/auth-api
+    container_name: cereria-auth-service
+    restart: always
     environment:
-      - DB_URL=mysql+pymysql://root:@db-service:3306/cereria_db
+      - MYSQL_HOST=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=123456
+      - MYSQL_DB=cereria_db
+    networks:
+      - cereria-network
     depends_on:
-      - db-service
+      - db
+
+  # 3. MICROSERVICIO REST 
 
   rest-service:
     build:
-      context: ./services/rest-api
-      dockerfile: Dockerfile
-    ports:
-      - "8002:8000"
+      context: ./Services/rest-api
+    container_name: cereria-rest-service
+    restart: always
     environment:
-      - DB_URL=mysql+pymysql://root:@db-service:3306/cereria_db
+      - MYSQL_HOST=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=123456
+      - MYSQL_DB=cereria_db
+    networks:
+      - cereria-network
     depends_on:
-      - db-service
+      - db
+
+
+  # 4. MICROSERVICIO GRAPHQL
 
   graphql-service:
     build:
-      context: ./services/graphql-api
-      dockerfile: Dockerfile
-    ports:
-      - "8003:8000"
+      context: ./Services/graphql-api
+    container_name: cereria-graphql-service
+    restart: always
     environment:
-      - DB_URL=mysql+pymysql://root:@db-service:3306/cereria_db
+      - MYSQL_HOST=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=123456
+      - MYSQL_DB=cereria_db
+    networks:
+      - cereria-network
     depends_on:
-      - db-service
+      - db
+
+  # 5. API GATEWAY 
+
+  api-gateway:
+    image: traefik:v2.10
+    container_name: cereria-traefik-gateway
+    restart: always
+    command:
+      - "--api.insecure=true"
+      - "--entrypoints.web.address=:80"
+      - "--providers.file.filename=/etc/traefik/traefik_dynamic.yml"
+      - "--providers.file.watch=true"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - ./traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro
+    networks:
+      - cereria-network
+    depends_on:
+      - auth-service
+      - rest-service
+      - graphql-service
+
+
+  # 6. ADMINISTRADOR DE BASE DE DATOS
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: cereria-phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: db                
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+      PMA_USER: root
+      PMA_PASSWORD: "123456"     
+    ports:
+      - "8085:80"
+    networks:
+      - cereria-network
+    depends_on:
+      - db
+
+# CONFIGURACIONES DE VOLÚMENES Y REDES GLOBALES
 
 volumes:
   mysql_data:
+
+networks:
+  cereria-network:
+    driver: bridge

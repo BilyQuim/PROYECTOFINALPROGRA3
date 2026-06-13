@@ -1,10 +1,20 @@
 from fastapi import FastAPI
 from app.routers import graphql_router
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
-    title="Sistema GraphQL API - Cerería La Terminal",
-    description="Microservicio avanzado para consultas optimizadas y dinámicas de existencias (Stock Actual)",
-    version="1.0.0"
+    title="API de GraphQL",
+    root_path="graphql",  
+    docs_url="/docs",          
+    openapi_url="/openapi.json"
+)
+cl
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(graphql_router.router, prefix="/graphql")

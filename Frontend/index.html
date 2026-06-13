@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerería - Panel de Control Principal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Sistema Control Cerería</span>
+            <span id="user-badge" class="badge bg-secondary d-none">Sesión: Carlos Encargado</span>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        
+        <div id="login-screen" class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card p-4">
+                    <h3 class="text-center mb-4">Iniciar Sesión</h3>
+                    <form id="login-form">
+                        <div class="mb-3">
+                            <label class="form-label">Usuario</label>
+                            <input type="text" id="username" class="form-control" value="carlos_encargado1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contraseña</label>
+                            <input type="password" id="password" class="form-control" value="123456" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Ingresar al Sistema</button>
+                    </form>
+                    <div id="login-alert" class="alert alert-danger mt-3 d-none"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="main-panel" class="d-none">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" id="rest-tab" data-bs-toggle="tab" data-bs-target="#rest-content" type="button">Listado de Productos (REST)</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="graphql-tab" data-bs-toggle="tab" data-bs-target="#graphql-content" type="button">Acciones y Precios (GraphQL)</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                
+                <div class="tab-pane fade show active" id="rest-content" role="tabpanel">
+                    <div class="card p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4>Catálogo de Velas y Veladoras</h4>
+                            <button class="btn btn-outline-success btn-sm" id="btn-refresh"> Refrescar Catálogo</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre del Producto</th>
+                                        <th>Descripción</th>
+                                        <th>Costo Base</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productos-table-body">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">Cargando datos desde el microservicio REST...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="graphql-content" role="tabpanel">
+                    <div class="card p-4">
+                        <h4>Panel de Gestión de Inventarios y Auditoría (GraphQL)</h4>
+                        <p class="text-muted">Consumo directo del microservicio de Strawberry mediante Queries analíticas y Mutations de Kardex.</p>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-4 border-end">
+                                <h5 class="text-primary mb-3">Consultas Analíticas</h5>
+                                <div class="d-grid gap-2 mb-3">
+                                    <button class="btn btn-outline-danger" id="btn-alertas-stock">Ver Alertas Stock Bajo</button>
+                                    <button class="btn btn-outline-info" id="btn-valor-inventario">Valor del Inventario</button>
+                                </div>
+                                <hr>
+                                <h5 class="text-success my-3">Modificar Costo Base</h5>
+                                <form id="graphql-form">
+                                    <div class="mb-2">
+                                        <label class="form-label small">ID del Producto</label>
+                                        <input type="number" id="product-id" class="form-control form-control-sm" value="1" required>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label small">Nuevo Costo Base (Q)</label>
+                                        <input type="number" step="0.01" id="new-cost" class="form-control form-control-sm" value="14.70" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-sm w-100">Actualizar Costo</button>
+                                </form>
+                            </div>
+
+                            <div class="col-md-4 border-end">
+                                <h5 class="text-warning mb-3">Movimiento de Kardex</h5>
+                                <form id="graphql-kardex-form">
+                                    <div class="mb-2">
+                                        <label class="form-label small">ID Producto</label>
+                                        <input type="number" id="kardex-prod-id" class="form-control form-control-sm" value="1" required>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label small">ID Sucursal</label>
+                                        <input type="number" id="kardex-suc-id" class="form-control form-control-sm" value="1" required>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label small">ID Usuario (Tu ID)</label>
+                                        <input type="number" id="kardex-user-id" class="form-control form-control-sm" value="2" required>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label small">Tipo de Movimiento</label>
+                                        <select id="kardex-tipo" class="form-select form-select-sm">
+                                            <option value="ENTRADA">ENTRADA (Abastecimiento)</option>
+                                            <option value="SALIDA">SALIDA (Venta/Merma)</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small">Cantidad de Unidades</label>
+                                        <input type="number" id="kardex-cant" class="form-control form-control-sm" value="10" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-warning btn-sm w-100 text-dark fw-bold">Ejecutar Stored Procedure</button>
+                                </form>
+                            </div>
+
+                            <div class="col-md-4">
+                                <h5 class="text-dark mb-3">Monitor en Tiempo Real</h5>
+                                <div class="bg-dark p-3 rounded code-box" style="min-height: 340px; overflow-y: auto;">
+                                    <pre id="graphql-result" class="text-success m-0 small fw-bold" style="white-space: pre-wrap;">Esperando ejecución de alguna acción...</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                
+        <div class="row mt-4">
+    
+        </div>
+
+    </div>
+</div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

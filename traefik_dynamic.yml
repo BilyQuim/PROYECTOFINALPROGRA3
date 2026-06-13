@@ -1,0 +1,26 @@
+http:
+  routers:
+    auth-router:
+      rule: "PathPrefix(`/auth`)"  
+      service: auth
+    rest-router:
+      rule: "PathPrefix(`/rest`)" 
+      service: rest
+
+    graphql-router:
+      rule: "PathPrefix(`/graphql`)" 
+      service: graphql
+
+  services:
+    auth:
+      loadBalancer:
+        servers:
+          - url: "http://auth-service:8000"
+    rest:
+      loadBalancer:
+        servers:
+          - url: "http://rest-service:8000"
+    graphql:
+      loadBalancer:
+        servers:
+          - url: "http://graphql-service:8000"
