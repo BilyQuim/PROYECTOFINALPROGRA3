@@ -3,13 +3,28 @@ http:
     auth-router:
       rule: "PathPrefix(`/auth`)"  
       service: auth
+      middlewares:
+        - auth-strip-prefix
     rest-router:
       rule: "PathPrefix(`/rest`)" 
       service: rest
+      middlewares:
+        - rest-strip-prefix
 
     graphql-router:
       rule: "PathPrefix(`/graphql`)" 
       service: graphql
+
+  middlewares:
+    auth-strip-prefix:
+      stripPrefix:
+        prefixes:
+          - "/auth"
+
+    rest-strip-prefix:
+      stripPrefix:
+        prefixes:
+          - "/rest"
 
   services:
     auth:
