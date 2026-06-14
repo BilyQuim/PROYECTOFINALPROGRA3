@@ -8,6 +8,7 @@ app = FastAPI(
     docs_url="/docs",
     openapi_url="/openapi.json"
 )
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
