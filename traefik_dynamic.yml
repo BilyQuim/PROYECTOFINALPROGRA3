@@ -1,19 +1,27 @@
 http:
   routers:
+    frontend-router:
+      rule: "PathPrefix(`/`)"
+      service: frontend
+      priority: 1
+
     auth-router:
       rule: "PathPrefix(`/auth`)"  
       service: auth
       middlewares:
         - auth-strip-prefix
+      priority: 100
     rest-router:
       rule: "PathPrefix(`/rest`)" 
       service: rest
       middlewares:
         - rest-strip-prefix
+      priority: 100
 
     graphql-router:
       rule: "PathPrefix(`/graphql`)" 
       service: graphql
+      priority: 100
 
   middlewares:
     auth-strip-prefix:
@@ -27,6 +35,11 @@ http:
           - "/rest"
 
   services:
+    frontend:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:80"
+
     auth:
       loadBalancer:
         servers:

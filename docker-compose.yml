@@ -1,5 +1,19 @@
 services:
 
+  # 0. FRONTEND WEB
+
+  frontend:
+    build:
+      context: ./Frontend
+    container_name: cereria-frontend
+    restart: always
+    networks:
+      - cereria-network
+    depends_on:
+      - auth-service
+      - rest-service
+      - graphql-service
+
   # 1. BASE DE DATOS 
 
   db:
@@ -88,6 +102,7 @@ services:
     networks:
       - cereria-network
     depends_on:
+      - frontend
       - auth-service
       - rest-service
       - graphql-service
