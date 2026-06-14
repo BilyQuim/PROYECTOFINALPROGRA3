@@ -14,6 +14,8 @@ http:
     graphql-router:
       rule: "PathPrefix(`/graphql`)" 
       service: graphql
+      middlewares:
+        - graphql-strip-prefix
 
   middlewares:
     auth-strip-prefix:
@@ -25,6 +27,11 @@ http:
       stripPrefix:
         prefixes:
           - "/rest"
+
+    graphql-strip-prefix:
+      stripPrefix:
+        prefixes:
+          - "/graphql"
 
   services:
     auth:
