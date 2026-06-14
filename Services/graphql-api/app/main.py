@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="API de GraphQL",
-    root_path="/graphql",
     docs_url="/docs",
     openapi_url="/openapi.json"
 )
@@ -17,7 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(graphql_router.router, prefix="/graphql")
+app.include_router(graphql_router.router)
 
 @app.get("/", tags=["Raíz"])
 def leer_raiz():
