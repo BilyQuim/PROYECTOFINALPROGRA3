@@ -4,11 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="API de GraphQL",
-    root_path="graphql",  
-    docs_url="/docs",          
+    root_path="/graphql",
+    docs_url="/docs",
     openapi_url="/openapi.json"
 )
-cl
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
