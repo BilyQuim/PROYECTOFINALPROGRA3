@@ -16,7 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(graphql_router.router)
+app.include_router(graphql_router.router, prefix="/graphql")
 
 @app.get("/", tags=["Raíz"])
 def leer_raiz():

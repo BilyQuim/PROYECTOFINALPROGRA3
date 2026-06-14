@@ -105,4 +105,4 @@ class Mutation:
 
 # Configuración del router de GraphQL
 schema = strawberry.Schema(query=Query, mutation=Mutation)
-router = GraphQLRouter(schema, path="/graphql")
+router = GraphQLRouter(schema)
